@@ -7,9 +7,188 @@ import time
 from datetime import datetime
 from bs4 import BeautifulSoup
 
+# Custom CSS for SYU styling
+st.markdown("""
+<style>
+    /* Import Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    /* Global Styles */
+    .stApp {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+    
+    /* Header Styling */
+    .main-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .main-title {
+        color: white;
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .main-subtitle {
+        color: rgba(255,255,255,0.9);
+        font-size: 1.2rem;
+        font-weight: 400;
+        margin-bottom: 0;
+    }
+    
+    /* Sidebar Styling */
+    .css-1d391kg {
+        background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    /* Tab Styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 2px;
+        background-color: white;
+        border-radius: 10px;
+        padding: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background-color: transparent;
+        border-radius: 8px;
+        color: #6c757d;
+        font-weight: 500;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white !important;
+    }
+    
+    /* Card Styling */
+    .research-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-left: 4px solid #667eea;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .research-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    /* Button Styling */
+    .stButton > button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Metric Cards */
+    [data-testid="metric-container"] {
+        background: white;
+        border: none;
+        padding: 1rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-left: 4px solid #28a745;
+    }
+    
+    /* Text Input Styling */
+    .stTextInput > div > div > input {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem;
+        transition: border-color 0.3s ease;
+    }
+    
+    .stTextInput > div > div > input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    /* Success/Warning/Error Styling */
+    .stSuccess {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border-radius: 8px;
+        border: none;
+    }
+    
+    .stWarning {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        color: white;
+        border-radius: 8px;
+        border: none;
+    }
+    
+    .stError {
+        background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+        color: white;
+        border-radius: 8px;
+        border: none;
+    }
+    
+    /* Progress Bar */
+    .stProgress .st-bo {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    /* Expander Styling */
+    .streamlit-expanderHeader {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+    }
+    
+    /* Footer */
+    .footer {
+        text-align: center;
+        padding: 2rem;
+        color: #6c757d;
+        font-size: 0.9rem;
+        border-top: 1px solid #e9ecef;
+        margin-top: 3rem;
+    }
+    
+    /* Hide Streamlit elements */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+</style>
+""", unsafe_allow_html=True)
+
 # App config
-st.set_page_config(page_title="Qforia Research Platform", layout="wide")
-st.title("🔍 Qforia: Complete Research & Analysis Platform")
+st.set_page_config(page_title="SYU Research Mate", layout="wide", initial_sidebar_state="expanded")
+
+# Custom Header
+st.markdown("""
+<div class="main-header">
+    <h1 class="main-title">SYU Research Mate</h1>
+    <p class="main-subtitle">Complete Research & Analysis Platform for Academic Excellence</p>
+</div>
+""", unsafe_allow_html=True)
 
 # Initialize session states
 if 'fanout_results' not in st.session_state:
@@ -26,9 +205,9 @@ if 'enhanced_topics' not in st.session_state:
     st.session_state.enhanced_topics = []
 
 # Sidebar Configuration
-st.sidebar.header("🔧 Configuration")
-gemini_key = st.sidebar.text_input("Gemini API Key", type="password")
-perplexity_key = st.sidebar.text_input("Perplexity API Key", type="password")
+st.sidebar.markdown("### Configuration Settings")
+gemini_key = st.sidebar.text_input("Gemini API Key", type="password", help="Enter your Google Gemini API key")
+perplexity_key = st.sidebar.text_input("Perplexity API Key", type="password", help="Enter your Perplexity API key")
 
 # Configure Gemini
 if gemini_key:
@@ -138,14 +317,14 @@ def QUERY_FANOUT_PROMPT(q, mode):
     min_queries_simple = 12
     min_queries_complex = 25
 
-    if mode == "AI Overview (simple)":
+    if mode == "Simple Research (Basic)":
         num_queries_instruction = (
             f"Analyze the user's query: \"{q}\". For '{mode}' mode, "
             f"generate **at least {min_queries_simple} diverse queries** that cover: "
             f"basic information, comparisons, alternatives, practical considerations, and user scenarios. "
             f"Focus on queries that would provide comprehensive coverage for someone researching this topic."
         )
-    else:  # AI Mode (complex)
+    else:  # Complex Research (Advanced)
         num_queries_instruction = (
             f"Analyze the user's query: \"{q}\". For '{mode}' mode, "
             f"generate **at least {min_queries_complex} comprehensive queries** that include: "
@@ -188,7 +367,7 @@ def QUERY_FANOUT_PROMPT(q, mode):
 
 def generate_fanout(query, mode):
     if not model:
-        st.error("Please configure Gemini API key")
+        st.error("Please configure Gemini API key in the sidebar")
         return None
         
     prompt = QUERY_FANOUT_PROMPT(query, mode)
@@ -206,48 +385,48 @@ def generate_fanout(query, mode):
         data = json.loads(json_text)
         return data
     except Exception as e:
-        st.error(f"Error generating fanout: {e}")
+        st.error(f"Error generating research queries: {e}")
         return None
 
 # Main Tabs
-tab1, tab2, tab3, tab4 = st.tabs(["🎯 Query Research", "🌐 URL Analyzer", "✅ Fact Checker", "📊 Research Dashboard"])
+tab1, tab2, tab3, tab4 = st.tabs(["Query Research", "URL Analyzer", "Fact Checker", "Research Dashboard"])
 
 with tab1:
-    st.header("🎯 Qforia Query Fan-Out Research")
+    st.markdown("### Comprehensive Query Research")
     
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        st.subheader("Enter Your Research Query")
+        st.markdown("#### Enter Your Research Topic")
         user_query = st.text_area(
             "What would you like to research?", 
-            value="What's the best electric SUV for driving up Mt. Rainier?",
+            value="What's the best electric SUV for long-distance travel?",
             height=100,
             help="Enter any topic you want to research comprehensively"
         )
 
     with col2:
-        st.subheader("Research Settings")
+        st.markdown("#### Research Settings")
         mode = st.selectbox(
             "Research Depth",
-            ["AI Overview (simple)", "AI Mode (complex)"],
-            help="Simple: 12+ focused queries | Complex: 25+ comprehensive queries"
+            ["Simple Research (Basic)", "Complex Research (Advanced)"],
+            help="Basic: 12+ focused queries | Advanced: 25+ comprehensive queries"
         )
         
-        if st.button("🚀 Generate Research Queries", type="primary", use_container_width=True):
+        if st.button("Generate Research Queries", type="primary", use_container_width=True):
             if not user_query.strip():
                 st.warning("Please enter a research query")
             elif not gemini_key:
-                st.warning("Please enter your Gemini API key")
+                st.warning("Please enter your Gemini API key in the sidebar")
             else:
-                with st.spinner("🤖 Generating comprehensive research queries..."):
+                with st.spinner("Generating comprehensive research queries..."):
                     results = generate_fanout(user_query, mode)
                     
                 if results:
                     st.session_state.fanout_results = results
                     st.session_state.generation_details = results.get("generation_details", {})
                     st.session_state.selected_queries = set()
-                    st.success("✅ Research queries generated successfully!")
+                    st.success("Research queries generated successfully!")
                     st.rerun()
 
     # Display fanout results
@@ -257,7 +436,7 @@ with tab1:
         # Show generation details
         details = st.session_state.generation_details
         if details:
-            st.subheader("🧠 Research Strategy")
+            st.markdown("#### Research Strategy Overview")
             col1, col2, col3 = st.columns(3)
             with col1:
                 st.metric("Target Queries", details.get('target_query_count', 'N/A'))
@@ -265,14 +444,14 @@ with tab1:
                 st.metric("Generated", len(st.session_state.fanout_results.get('expanded_queries', [])))
             with col3:
                 if perplexity_key:
-                    st.metric("Research Ready", "✅")
+                    st.metric("Research Ready", "Yes")
                 else:
-                    st.metric("Research Ready", "❌ Need Perplexity Key")
+                    st.metric("Research Ready", "Need API Key")
             
             st.info(f"**Strategy:** {details.get('research_strategy', 'Not provided')}")
 
         # Interactive query selection
-        st.subheader("📋 Research Queries - Select for Deep Research")
+        st.markdown("#### Research Queries - Select for Deep Research")
         
         queries = st.session_state.fanout_results.get('expanded_queries', [])
         if queries:
@@ -306,6 +485,7 @@ with tab1:
                 query_id = f"query_{hash(query_data['query'])}"
                 
                 with st.container():
+                    st.markdown('<div class="research-card">', unsafe_allow_html=True)
                     col1, col2, col3 = st.columns([1, 6, 2])
                     
                     with col1:
@@ -316,15 +496,15 @@ with tab1:
                             st.session_state.selected_queries.discard(query_id)
                     
                     with col2:
-                        priority_color = {'high': '🔴', 'medium': '🟡', 'low': '🟢'}.get(query_data.get('priority', 'medium'), '🟡')
-                        st.markdown(f"**{priority_color} {query_data['query']}**")
-                        st.caption(f"📁 {query_data.get('category', 'Unknown')} | 💡 {query_data.get('expected_insights', 'N/A')}")
+                        priority_indicator = {'high': '🔴', 'medium': '🟡', 'low': '🟢'}.get(query_data.get('priority', 'medium'), '🟡')
+                        st.markdown(f"**{priority_indicator} {query_data['query']}**")
+                        st.caption(f"Category: {query_data.get('category', 'Unknown')} | Expected Insights: {query_data.get('expected_insights', 'N/A')}")
                     
                     with col3:
                         if query_id in st.session_state.research_results:
-                            st.success("✅ Researched")
+                            st.success("Researched")
                         elif perplexity_key:
-                            if st.button("🔍 Research", key=f"research_{query_id}"):
+                            if st.button("Research Now", key=f"research_{query_id}"):
                                 with st.spinner("Researching..."):
                                     result = call_perplexity(query_data['query'])
                                     if 'choices' in result:
@@ -337,13 +517,13 @@ with tab1:
                                         }
                                         st.rerun()
                         else:
-                            st.caption("Need Perplexity Key")
-                            
-                    st.markdown("---")
+                            st.caption("API Key Required")
+                    
+                    st.markdown('</div>', unsafe_allow_html=True)
             
             # Bulk research
             if st.session_state.selected_queries and perplexity_key:
-                if st.button("🚀 Research Selected Queries", type="secondary"):
+                if st.button("Research Selected Queries", type="secondary"):
                     selected_query_data = [
                         q for q in filtered_queries 
                         if f"query_{hash(q['query'])}" in st.session_state.selected_queries
@@ -364,11 +544,11 @@ with tab1:
                                 }
                             time.sleep(1)
                         progress_bar.progress((i + 1) / len(selected_query_data))
-                    st.success("✅ Bulk research completed!")
+                    st.success("Bulk research completed successfully!")
                     st.rerun()
 
 with tab2:
-    st.header("🌐 URL Content Analyzer")
+    st.markdown("### URL Content Analyzer")
     
     col1, col2 = st.columns([3, 1])
     
@@ -376,25 +556,25 @@ with tab2:
         url = st.text_input("Enter URL to analyze:", placeholder="https://example.com/article")
         
     with col2:
-        if st.button("🔍 Analyze URL", type="primary", use_container_width=True):
+        if st.button("Analyze URL", type="primary", use_container_width=True):
             if not url:
                 st.warning("Please enter a URL")
             elif not gemini_key:
-                st.warning("Please enter your Gemini API key")
+                st.warning("Please enter your Gemini API key in the sidebar")
             else:
-                with st.spinner("🌐 Scraping and analyzing URL content..."):
+                with st.spinner("Scraping and analyzing URL content..."):
                     scraped_data, error = scrape_url(url)
                     
                 if scraped_data:
-                    st.success("✅ Content scraped successfully!")
+                    st.success("Content scraped successfully!")
                     st.write(f"**Title:** {scraped_data['title']}")
                     
-                    with st.spinner("🤖 Analyzing content..."):
+                    with st.spinner("Analyzing content..."):
                         analysis, error = analyze_url_content(scraped_data['content'], scraped_data['title'])
                     
                     if analysis:
                         st.session_state.url_analysis = analysis
-                        st.success("✅ Analysis completed!")
+                        st.success("Analysis completed successfully!")
                         st.rerun()
                     else:
                         st.error(f"Analysis failed: {error}")
@@ -415,17 +595,17 @@ with tab2:
         with col3:
             st.metric("Topics Found", len(analysis.get('main_topics', [])))
         with col4:
-            st.metric("Enhancement Ops", len(analysis.get('enhancement_opportunities', [])))
+            st.metric("Enhancement Opportunities", len(analysis.get('enhancement_opportunities', [])))
         
         # Main topics
         if analysis.get('main_topics'):
-            st.subheader("📝 Main Topics")
+            st.markdown("#### Main Topics")
             for topic in analysis['main_topics']:
                 st.write(f"• {topic}")
         
         # Key points
         if analysis.get('key_points'):
-            st.subheader("🎯 Key Points")
+            st.markdown("#### Key Points")
             for point in analysis['key_points']:
                 st.write(f"• {point}")
         
@@ -434,9 +614,9 @@ with tab2:
         
         with col1:
             if analysis.get('missing_context'):
-                st.subheader("❓ Missing Context")
+                st.markdown("#### Missing Context")
                 for item in analysis['missing_context']:
-                    with st.expander(f"📌 {item['topic']}"):
+                    with st.expander(f"Topic: {item['topic']}"):
                         st.write(f"**Missing:** {item['missing_info']}")
                         if perplexity_key and st.button(f"Research: {item['topic']}", key=f"missing_{hash(item['topic'])}"):
                             result = call_perplexity(item['research_query'])
@@ -446,9 +626,9 @@ with tab2:
         
         with col2:
             if analysis.get('enhancement_opportunities'):
-                st.subheader("🚀 Enhancement Opportunities")
+                st.markdown("#### Enhancement Opportunities")
                 for item in analysis['enhancement_opportunities']:
-                    with st.expander(f"💡 {item['area']}"):
+                    with st.expander(f"Area: {item['area']}"):
                         st.write(f"**Suggested Research:** {item['suggested_research']}")
                         if perplexity_key and st.button(f"Enhance: {item['area']}", key=f"enhance_{hash(item['area'])}"):
                             result = call_perplexity(item['suggested_research'])
@@ -457,15 +637,15 @@ with tab2:
                                 st.write(result['choices'][0]['message']['content'])
 
 with tab3:
-    st.header("✅ Fact Checker & Claim Verification")
+    st.markdown("### Fact Checker & Claim Verification")
     
     # Manual fact checking
-    st.subheader("🔍 Manual Fact Check")
+    st.markdown("#### Manual Fact Check")
     fact_query = st.text_input("Enter claim to verify:", placeholder="e.g., Tesla Model Y is the best-selling EV in 2024")
     
     col1, col2 = st.columns([1, 4])
     with col1:
-        if st.button("🔍 Verify Fact", type="primary"):
+        if st.button("Verify Fact", type="primary"):
             if fact_query and perplexity_key:
                 with st.spinner("Verifying claim..."):
                     verification_prompt = f"Fact-check this claim with current data and sources: {fact_query}. Provide verification status, supporting evidence, and source citations."
@@ -474,19 +654,19 @@ with tab3:
                         st.write("**Verification Result:**")
                         st.write(result['choices'][0]['message']['content'])
             elif not perplexity_key:
-                st.warning("Please enter Perplexity API key")
+                st.warning("Please enter Perplexity API key in the sidebar")
             else:
                 st.warning("Please enter a claim to verify")
     
     # Auto fact-checking from URL analysis
     if st.session_state.url_analysis and st.session_state.url_analysis.get('fact_check_items'):
         st.markdown("---")
-        st.subheader("🤖 Auto-Detected Claims for Verification")
+        st.markdown("#### Auto-Detected Claims for Verification")
         
         for item in st.session_state.url_analysis['fact_check_items']:
-            with st.expander(f"📋 {item['claim']}", expanded=False):
+            with st.expander(f"Claim: {item['claim']}", expanded=False):
                 if perplexity_key:
-                    if st.button(f"Verify Claim", key=f"verify_{hash(item['claim'])}"):
+                    if st.button(f"Verify This Claim", key=f"verify_{hash(item['claim'])}"):
                         with st.spinner("Verifying..."):
                             result = call_perplexity(item['verification_query'], "Fact-check this claim with current data, sources, and verification status.")
                             if 'choices' in result:
@@ -496,7 +676,7 @@ with tab3:
                     st.caption("Perplexity API key required for verification")
 
 with tab4:
-    st.header("📊 Research Dashboard")
+    st.markdown("### Research Dashboard")
     
     if st.session_state.research_results:
         # Summary metrics
@@ -525,16 +705,16 @@ with tab4:
         
         csv_data = research_df.to_csv(index=False).encode('utf-8')
         st.download_button(
-            "📥 Download Complete Research Results",
+            "Download Complete Research Results",
             data=csv_data,
-            file_name=f"qforia_complete_research_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
+            file_name=f"syu_research_results_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
             mime="text/csv"
         )
         
         # Detailed results
-        st.subheader("📋 Detailed Research Results")
+        st.markdown("#### Detailed Research Results")
         for query_id, data in st.session_state.research_results.items():
-            with st.expander(f"🔍 {data['query']}", expanded=False):
+            with st.expander(f"Query: {data['query']}", expanded=False):
                 col1, col2 = st.columns([3, 1])
                 with col1:
                     st.markdown("**Research Findings:**")
@@ -544,19 +724,39 @@ with tab4:
                     st.caption(f"**Priority:** {data['priority']}")
                     st.caption(f"**Researched:** {data['timestamp']}")
     else:
-        st.info("No research results yet. Start by using the Query Research or URL Analyzer tabs.")
+        st.info("No research results yet. Start by using the Query Research or URL Analyzer tabs to begin your research journey.")
+
+# Sidebar additional options
+st.sidebar.markdown("---")
+st.sidebar.markdown("### Quick Actions")
 
 # Clear all data button
-if st.sidebar.button("🗑️ Clear All Data"):
+if st.sidebar.button("Clear All Data", type="secondary"):
     st.session_state.fanout_results = None
     st.session_state.generation_details = None
     st.session_state.research_results = {}
     st.session_state.selected_queries = set()
     st.session_state.url_analysis = None
     st.session_state.enhanced_topics = []
-    st.success("All data cleared!")
+    st.success("All data cleared successfully!")
     st.rerun()
 
+# API Status
+st.sidebar.markdown("### API Status")
+if gemini_key:
+    st.sidebar.success("Gemini API: Connected")
+else:
+    st.sidebar.error("Gemini API: Not Connected")
+
+if perplexity_key:
+    st.sidebar.success("Perplexity API: Connected")
+else:
+    st.sidebar.error("Perplexity API: Not Connected")
+
 # Footer
-st.markdown("---")
-st.markdown("**Qforia Complete Research Platform** - Query Fan-Out, URL Analysis, Fact Checking & Research Dashboard | *Powered by Gemini AI & Perplexity*")
+st.markdown("""
+<div class="footer">
+    <strong>SYU Research Mate</strong> - Complete Research & Analysis Platform<br>
+    <em>Powered by Gemini AI & Perplexity | Built for SelectYourUniversity</em>
+</div>
+""", unsafe_allow_html=True)
