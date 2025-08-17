@@ -226,7 +226,7 @@ with tab1:
         st.subheader("Enter Your Research Query")
         user_query = st.text_area(
             "What would you like to research?", 
-            value="What's the best electric SUV for driving up Mt. Rainier?",
+            value="JEE Main How to Prepare",
             height=100,
             help="Enter any topic you want to research comprehensively"
         )
