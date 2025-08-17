@@ -1,24 +1,32 @@
-# Core Streamlit and AI libraries
-streamlit==1.39.0
-google-generativeai==0.8.3
+# Qforia Research Platform Requirements
 
-# Data manipulation and analysis
-pandas==2.2.3
-numpy==1.26.4
+# Core Streamlit Framework
+streamlit>=1.28.0
 
-# HTTP requests and web scraping
-requests==2.32.3
-beautifulsoup4==4.12.3
-lxml==5.3.0
+# Google AI Integration
+google-generativeai>=0.3.0
 
-# JSON and text processing (built-in json is sufficient)
-# Date and time handling (built-in datetime is sufficient)
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
 
-# Enhanced CSV and Excel handling
-openpyxl==3.1.5
+# HTTP Requests and API Calls
+requests>=2.31.0
 
-# Better HTML parsing and text extraction
-html2text==2024.2.26
+# PDF Processing
+PyPDF2>=3.0.1
 
-# Better URL parsing and validation
-validators==0.34.0
+# JSON Handling (included in Python standard library)
+# json - built-in
+
+# Date and Time (included in Python standard library)
+# datetime - built-in
+
+# System utilities
+time  # built-in module
+
+# Optional: Enhanced PDF processing (alternative to PyPDF2)
+# pdfplumber>=0.9.0  # Uncomment if you need more advanced PDF parsing
+
+# Optional: Additional utilities
+# python-dotenv>=1.0.0  # For environment variable management
