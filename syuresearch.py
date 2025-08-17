@@ -379,7 +379,7 @@ with tab2:
     
     with col1:
         uploaded_file = st.file_uploader(
-            "Upload PDF document for analysis:", 
+            "Upload PDF document for analysis or url pdf:", 
             type=['pdf'],
             help="Upload a PDF file to extract keywords, topics, and analyze content"
         )
