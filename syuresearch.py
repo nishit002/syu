@@ -10,7 +10,7 @@ import io
 
 # App config
 st.set_page_config(page_title="Qforia Research Platform", layout="wide")
-st.title("🔍 Qforia: Complete Research & Analysis Platform")
+st.title("SYU Content Guide")
 
 # Initialize session states
 if 'fanout_results' not in st.session_state:
