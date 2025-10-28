@@ -32,6 +32,8 @@ if 'generated_content' not in st.session_state:
     st.session_state.generated_content = {}
 if 'content_structure' not in st.session_state:
     st.session_state.content_structure = []
+if 'user_query' not in st.session_state:
+    st.session_state.user_query = ''
 
 # Sidebar Configuration
 st.sidebar.header("🔧 Configuration")
@@ -406,6 +408,8 @@ with tab1:
                 st.warning("Please enter your Gemini API key")
             else:
                 with st.spinner("🤖 Generating comprehensive research queries..."):
+                    # Store user query for later use
+                    st.session_state.user_query = user_query
                     results = generate_fanout(user_query, mode)
                     
                 if results:
@@ -752,9 +756,14 @@ with tab5:
         col1, col2 = st.columns([2, 1])
         
         with col1:
+            # Get default topic from session state if available
+            default_topic = ""
+            if 'user_query' in st.session_state:
+                default_topic = st.session_state.user_query
+            
             content_topic = st.text_input(
                 "Article Topic/Title",
-                value=st.session_state.get('fanout_results', {}).get('user_query', ''),
+                value=default_topic,
                 placeholder="e.g., Complete Guide to JEE Main Preparation",
                 help="Main topic for your article"
             )
@@ -1102,6 +1111,7 @@ if st.sidebar.button("🗑️ Clear All Data"):
     st.session_state.enhanced_topics = []
     st.session_state.generated_content = {}
     st.session_state.content_structure = []
+    st.session_state.user_query = ''
     st.success("All data cleared!")
     st.rerun()
 
