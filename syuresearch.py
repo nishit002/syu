@@ -8,6 +8,17 @@ from datetime import datetime
 import PyPDF2
 import io
 
+# DOCX support for Word export
+try:
+    from docx import Document
+    from docx.shared import Inches, Pt, RGBColor
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.oxml.ns import qn
+    DOCX_AVAILABLE = True
+except ImportError:
+    DOCX_AVAILABLE = False
+    st.warning("⚠️ python-docx not installed. Install: pip install python-docx")
+
 # App config
 st.set_page_config(page_title="Qforia Research Platform", layout="wide")
 st.title("SYU Content Guide")
@@ -73,12 +84,12 @@ def call_perplexity(query, system_prompt="Provide comprehensive, actionable insi
         "Accept": "application/json"
     }
     data = {
-        "model": "sonar-pro",
+        "model": "sonar",  # CHEAPEST model - $0.2 per 1M tokens (vs sonar-pro at $3)
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": query}
         ],
-        "max_tokens": 1000
+        "max_tokens": 500  # Reduced from 1000 to minimize cost
     }
     
     try:
@@ -123,44 +134,54 @@ def call_grok(messages, max_tokens=4000, temperature=0.7):
         return None, f"Grok API error: {str(e)}"
 
 def generate_content_structure(research_data, topic):
-    """Generate article structure based on research data"""
+    """Generate SEO-optimized article structure"""
     if not grok_key:
-        return None, "Grok API key required for content generation"
+        return None, "Grok API key required"
     
-    # Compile research findings
     research_summary = ""
-    for query_id, data in research_data.items():
-        research_summary += f"\n\n**{data['query']}** ({data['category']}):\n{data['result'][:500]}..."
+    for query_id, data in list(research_data.items())[:10]:  # Limit to 10 to reduce tokens
+        research_summary += f"\n{data['query']}: {data['result'][:200]}..."
     
-    prompt = f"""Based on the comprehensive research data below, create a detailed article structure for the topic: "{topic}"
+    prompt = f"""Create SEO-optimized article structure for: "{topic}"
 
-Research Findings:
+RESEARCH DATA:
 {research_summary}
 
-Generate a comprehensive article outline with 8-12 sections that:
-1. Covers all key aspects from the research
-2. Follows a logical flow
-3. Includes sections that would benefit from tables (comparisons, data, features)
-4. Marks where infographics would enhance understanding
-5. Incorporates key findings from the research
+REQUIREMENTS:
+1. H1 Title: Include main keyword, make it compelling (50-60 chars)
+2. Meta Description: 150-160 chars with main keyword and value proposition
+3. 8-10 H2 Sections covering user search intent
+4. Each section answers a specific user question
+5. Include sections with tables for comparisons/data
+6. Mark sections where visuals enhance understanding
+7. Logical flow: Problem → Solution → Implementation → Results
 
-Return ONLY valid JSON in this format:
+USER INTENT:
+- What are they trying to learn?
+- What problem are they solving?
+- What action will they take?
+
+JSON FORMAT:
 {{
-    "article_title": "Compelling title for the article",
-    "meta_description": "SEO-friendly 150-160 character description",
+    "article_title": "SEO-friendly H1 title",
+    "meta_description": "150-160 char description",
+    "primary_keyword": "main keyword",
+    "semantic_keywords": ["keyword1", "keyword2", "keyword3"],
     "sections": [
         {{
-            "title": "Section Title",
-            "description": "What this section covers",
+            "title": "H2 Section Title with Keyword",
+            "description": "What this covers",
             "key_points": ["Point 1", "Point 2", "Point 3"],
             "needs_table": true/false,
-            "table_description": "What the table should compare/show",
+            "table_description": "What to compare",
             "needs_infographic": true/false,
-            "infographic_description": "What the infographic should visualize",
-            "estimated_words": 300-500
+            "infographic_description": "What to visualize",
+            "estimated_words": 400
         }}
     ]
-}}"""
+}}
+
+Create structure NOW:
 
     messages = [{"role": "user", "content": prompt}]
     response, error = call_grok(messages, max_tokens=3000, temperature=0.6)
@@ -181,32 +202,40 @@ Return ONLY valid JSON in this format:
         return None, f"Failed to parse structure: {str(e)}"
 
 def generate_section_content(section, research_context, tone="professional"):
-    """Generate detailed content for a specific section"""
+    """Generate detailed content for a specific section with SEO optimization"""
     if not grok_key:
         return None, "Grok API key required"
     
-    prompt = f"""Write a comprehensive, engaging section for an article.
+    prompt = f"""Write SEO-optimized content for this section.
 
-Section Title: {section['title']}
-Section Description: {section['description']}
-Key Points to Cover: {', '.join(section['key_points'])}
-Target Word Count: {section.get('estimated_words', 400)} words
-Tone: {tone}
+SECTION: {section['title']}
+DESCRIPTION: {section['description']}
+KEY POINTS: {', '.join(section['key_points'])}
+TARGET LENGTH: {section.get('estimated_words', 400)} words
+TONE: {tone}
 
-Research Context:
+RESEARCH DATA:
 {research_context[:2000]}
 
-Guidelines:
-- Write in a clear, engaging style
-- Include specific examples and data from the research context
-- Use transition sentences between paragraphs
-- Make it informative and actionable
-- Include relevant statistics or facts
-- Write for web readability (short paragraphs, clear structure)
+SEO REQUIREMENTS:
+1. Use primary keyword "{section['title']}" in first paragraph
+2. Include semantic keywords naturally throughout
+3. Use header hierarchy properly (H2 for section, H3 for subsections)
+4. Write for user intent - answer what users actually want to know
+5. Include specific data, statistics, examples from research
+6. Short paragraphs (2-3 sentences max)
+7. Use transition words between paragraphs
 
-{f"Include a comparison table with 3-5 rows showing: {section['table_description']}" if section.get('needs_table') else ''}
+STRUCTURE:
+- Opening paragraph with main keyword
+- 2-3 body paragraphs with semantic keywords
+- Each paragraph should answer a specific user question
+- Use bullet points or numbered lists where helpful
+- End with actionable insight or transition
 
-Write the complete section content now (aim for {section.get('estimated_words', 400)} words):"""
+{f"CREATE TABLE: {section['table_description']}" if section.get('needs_table') else ''}
+
+Write the complete section content now:"""
 
     messages = [{"role": "user", "content": prompt}]
     return call_grok(messages, max_tokens=1500, temperature=0.7)
@@ -244,6 +273,173 @@ Create 3-5 rows with accurate, relevant data."""
         return json.loads(response.strip()), None
     except Exception as e:
         return None, f"Failed to parse table: {str(e)}"
+
+def export_to_docx(article_title, meta_description, sections_content, keywords):
+    """Export article to formatted DOCX file"""
+    if not DOCX_AVAILABLE:
+        return None
+    
+    doc = Document()
+    
+    # Set normal style
+    style = doc.styles['Normal']
+    style.font.name = 'Arial'
+    style.font.size = Pt(11)
+    
+    # Add H1 Title (ONLY ONE)
+    title = doc.add_heading(article_title, level=1)
+    title.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    
+    # Add meta description
+    meta = doc.add_paragraph(meta_description)
+    meta.italic = True
+    doc.add_paragraph()
+    
+    # Add keywords section
+    doc.add_heading('Target Keywords', level=2)
+    kw_text = ', '.join([k.get('keyword', str(k)) if isinstance(k, dict) else str(k) for k in keywords[:10]])
+    doc.add_paragraph(kw_text)
+    doc.add_paragraph()
+    
+    # Add all sections (H2 level)
+    for section_data in sections_content:
+        section = section_data['section']
+        content = section_data['content']
+        
+        # Add H2 section title
+        doc.add_heading(section['title'], level=2)
+        
+        # Add content paragraphs
+        paragraphs = content.split('\n\n')
+        for para in paragraphs:
+            if para.strip():
+                # Check if it's a subheading (starts with ###)
+                if para.strip().startswith('###'):
+                    doc.add_heading(para.replace('###', '').strip(), level=3)
+                else:
+                    doc.add_paragraph(para.strip())
+        
+        # Add table if exists
+        if 'table' in section_data:
+            table_info = section_data['table']
+            doc.add_paragraph()
+            doc.add_heading(table_info.get('table_title', 'Comparison Table'), level=3)
+            
+            headers = table_info.get('headers', [])
+            rows = table_info.get('rows', [])
+            
+            if headers and rows:
+                table = doc.add_table(rows=len(rows)+1, cols=len(headers))
+                table.style = 'Light Grid Accent 1'
+                
+                # Header row
+                for idx, header in enumerate(headers):
+                    cell = table.rows[0].cells[idx]
+                    cell.text = str(header)
+                    cell.paragraphs[0].runs[0].font.bold = True
+                
+                # Data rows
+                for row_idx, row in enumerate(rows):
+                    for col_idx, cell_value in enumerate(row):
+                        table.rows[row_idx+1].cells[col_idx].text = str(cell_value)
+        
+        # Add infographic note
+        if section.get('needs_infographic'):
+            doc.add_paragraph()
+            note = doc.add_paragraph()
+            note.add_run('💡 Infographic Suggestion: ').bold = True
+            note.add_run(section.get('infographic_description', 'Visual content recommended'))
+        
+        doc.add_paragraph()
+    
+    # Save to BytesIO
+    buffer = io.BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    return buffer
+
+def export_to_html(article_title, meta_description, sections_content, keywords):
+    """Export article to clean HTML (no <html>, <head>, <meta> tags)"""
+    
+    html = []
+    
+    # H1 Title (ONLY ONE)
+    html.append(f'<h1>{article_title}</h1>')
+    html.append(f'<p class="meta-description"><em>{meta_description}</em></p>')
+    html.append('')
+    
+    # Keywords
+    html.append('<h2>Target Keywords</h2>')
+    kw_list = ', '.join([k.get('keyword', str(k)) if isinstance(k, dict) else str(k) for k in keywords[:10]])
+    html.append(f'<p class="keywords">{kw_list}</p>')
+    html.append('')
+    
+    # All sections (H2 level)
+    for section_data in sections_content:
+        section = section_data['section']
+        content = section_data['content']
+        
+        # H2 section title
+        html.append(f'<h2>{section["title"]}</h2>')
+        
+        # Content paragraphs
+        paragraphs = content.split('\n\n')
+        for para in paragraphs:
+            if para.strip():
+                # Check for H3 subheadings
+                if para.strip().startswith('###'):
+                    h3_text = para.replace('###', '').strip()
+                    html.append(f'<h3>{h3_text}</h3>')
+                # Check for bullet points
+                elif para.strip().startswith('- ') or para.strip().startswith('• '):
+                    items = para.strip().split('\n')
+                    html.append('<ul>')
+                    for item in items:
+                        clean_item = item.strip().lstrip('- ').lstrip('• ')
+                        if clean_item:
+                            html.append(f'  <li>{clean_item}</li>')
+                    html.append('</ul>')
+                # Regular paragraph
+                else:
+                    html.append(f'<p>{para.strip()}</p>')
+        
+        # Add table if exists
+        if 'table' in section_data:
+            table_info = section_data['table']
+            html.append(f'<h3>{table_info.get("table_title", "Comparison Table")}</h3>')
+            html.append('<table>')
+            
+            headers = table_info.get('headers', [])
+            rows = table_info.get('rows', [])
+            
+            if headers:
+                html.append('  <thead>')
+                html.append('    <tr>')
+                for header in headers:
+                    html.append(f'      <th>{header}</th>')
+                html.append('    </tr>')
+                html.append('  </thead>')
+            
+            if rows:
+                html.append('  <tbody>')
+                for row in rows:
+                    html.append('    <tr>')
+                    for cell in row:
+                        html.append(f'      <td>{cell}</td>')
+                    html.append('    </tr>')
+                html.append('  </tbody>')
+            
+            html.append('</table>')
+        
+        # Infographic note
+        if section.get('needs_infographic'):
+            html.append(f'<div class="infographic-note">')
+            html.append(f'  <strong>💡 Infographic Suggestion:</strong> {section.get("infographic_description", "Visual content recommended")}')
+            html.append('</div>')
+        
+        html.append('')
+    
+    return '\n'.join(html)
 
 def extract_pdf_text(uploaded_file):
     """Extract text content from uploaded PDF file"""
@@ -1064,56 +1260,113 @@ with tab5:
                 # Export options
                 st.subheader("📥 Export Article")
                 
-                # Compile full text
-                full_article = f"# {st.session_state.content_structure['article_title']}\n\n"
-                full_article += f"*{st.session_state.content_structure.get('meta_description', '')}*\n\n"
-                full_article += "---\n\n"
-                
+                # Prepare data for export
+                sections_list = []
                 for section_key in sorted(st.session_state.generated_content.keys()):
-                    section_data = st.session_state.generated_content[section_key]
-                    section = section_data['section']
-                    
-                    full_article += f"## {section['title']}\n\n"
-                    full_article += f"{section_data['content']}\n\n"
-                    
-                    if 'table' in section_data:
-                        table = section_data['table']
-                        full_article += f"### {table.get('table_title', 'Table')}\n\n"
-                        # Add table in markdown format
-                        headers = table['headers']
-                        full_article += "| " + " | ".join(headers) + " |\n"
-                        full_article += "| " + " | ".join(["---"] * len(headers)) + " |\n"
-                        for row in table['rows']:
-                            full_article += "| " + " | ".join(str(cell) for cell in row) + " |\n"
-                        full_article += "\n"
-                    
-                    if section.get('needs_infographic'):
-                        full_article += f"*💡 Infographic Suggestion: {section.get('infographic_description', 'Visual content recommended')}*\n\n"
-                    
-                    full_article += "---\n\n"
+                    sections_list.append(st.session_state.generated_content[section_key])
                 
-                # Download buttons
-                col1, col2 = st.columns(2)
+                # Get keywords
+                article_keywords = st.session_state.get('keywords', [])
+                
+                # Export buttons in columns
+                col1, col2, col3 = st.columns(3)
                 
                 with col1:
+                    # DOCX Export
+                    if DOCX_AVAILABLE:
+                        docx_buffer = export_to_docx(
+                            st.session_state.content_structure['article_title'],
+                            st.session_state.content_structure.get('meta_description', ''),
+                            sections_list,
+                            article_keywords
+                        )
+                        
+                        if docx_buffer:
+                            st.download_button(
+                                "📄 Download DOCX",
+                                data=docx_buffer,
+                                file_name=f"{content_topic.replace(' ', '_')}.docx",
+                                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                use_container_width=True
+                            )
+                    else:
+                        st.warning("Install python-docx for DOCX export")
+                
+                with col2:
+                    # Clean HTML Export
+                    html_content = export_to_html(
+                        st.session_state.content_structure['article_title'],
+                        st.session_state.content_structure.get('meta_description', ''),
+                        sections_list,
+                        article_keywords
+                    )
+                    
                     st.download_button(
-                        "📥 Download as Markdown",
+                        "🌐 Download HTML",
+                        data=html_content.encode('utf-8'),
+                        file_name=f"{content_topic.replace(' ', '_')}.html",
+                        mime="text/html",
+                        use_container_width=True
+                    )
+                
+                with col3:
+                    # Markdown Export (original)
+                    full_article = f"# {st.session_state.content_structure['article_title']}\n\n"
+                    full_article += f"*{st.session_state.content_structure.get('meta_description', '')}*\n\n"
+                    full_article += "---\n\n"
+                    
+                    for section_key in sorted(st.session_state.generated_content.keys()):
+                        section_data = st.session_state.generated_content[section_key]
+                        section = section_data['section']
+                        
+                        full_article += f"## {section['title']}\n\n"
+                        full_article += f"{section_data['content']}\n\n"
+                        
+                        if 'table' in section_data:
+                            table = section_data['table']
+                            full_article += f"### {table.get('table_title', 'Table')}\n\n"
+                            headers = table['headers']
+                            full_article += "| " + " | ".join(headers) + " |\n"
+                            full_article += "| " + " | ".join(["---"] * len(headers)) + " |\n"
+                            for row in table['rows']:
+                                full_article += "| " + " | ".join(str(cell) for cell in row) + " |\n"
+                            full_article += "\n"
+                        
+                        if section.get('needs_infographic'):
+                            full_article += f"*💡 Infographic: {section.get('infographic_description', 'Visual recommended')}*\n\n"
+                        
+                        full_article += "---\n\n"
+                    
+                    st.download_button(
+                        "📝 Download Markdown",
                         data=full_article.encode('utf-8'),
                         file_name=f"{content_topic.replace(' ', '_')}.md",
                         mime="text/markdown",
                         use_container_width=True
                     )
                 
-                with col2:
-                    # Create simple text export
-                    text_export = full_article.replace('#', '').replace('*', '').replace('|', ' ')
-                    st.download_button(
-                        "📥 Download as Text",
-                        data=text_export.encode('utf-8'),
-                        file_name=f"{content_topic.replace(' ', '_')}.txt",
-                        mime="text/plain",
-                        use_container_width=True
-                    )
+                # Show format info
+                with st.expander("ℹ️ Export Format Details"):
+                    st.markdown("""
+                    **DOCX (Word):**
+                    - ✅ Full formatting (bold, italic, tables)
+                    - ✅ One H1 title only
+                    - ✅ H2 for sections, H3 for subsections
+                    - ✅ Editable in Microsoft Word/Google Docs
+                    - ✅ Tables properly formatted
+                    
+                    **HTML (Clean):**
+                    - ✅ No `<html>`, `<head>`, or `<meta>` tags
+                    - ✅ One H1 title only
+                    - ✅ Ready to paste into CMS/website
+                    - ✅ Semantic HTML structure
+                    - ✅ Tables with proper markup
+                    
+                    **Markdown:**
+                    - ✅ Plain text with formatting
+                    - ✅ Works with any markdown editor
+                    - ✅ Easy to convert to other formats
+                    """)
 
 # Clear all data button
 if st.sidebar.button("🗑️ Clear All Data"):
