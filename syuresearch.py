@@ -41,26 +41,24 @@ gemini_key = st.sidebar.text_input("Gemini API Key", type="password")
 perplexity_key = st.sidebar.text_input("Perplexity API Key", type="password")
 grok_key = st.sidebar.text_input("Grok API Key (for content generation)", type="password", help="Enter your xAI Grok API key")
 
-# Gemini model selector - using models from your available list
-st.sidebar.subheader("Gemini Model Selection")
+# Gemini model selector with WORKING models (no models/ prefix needed)
+st.sidebar.subheader("Gemini Model")
 gemini_model = st.sidebar.selectbox(
-    "Select Gemini Model",
+    "Select Model",
     [
-        "gemini-2.0-flash",
-        "gemini-2.0-flash-lite",
+        "gemini-2.0-flash-exp",
         "gemini-2.5-flash",
-        "gemini-2.5-flash-lite",
-        "gemini-2.5-pro"
+        "gemini-2.5-pro",
+        "gemini-2.0-flash",
     ],
-    index=0,
-    help="Select a model from your available list"
+    index=0
 )
 
-# Configure Gemini
+# Configure Gemini with working model
 if gemini_key:
     genai.configure(api_key=gemini_key)
     model = genai.GenerativeModel(gemini_model)
-    st.sidebar.success(f"✅ Using: {gemini_model}")
+    st.sidebar.success(f"✅ {gemini_model}")
 else:
     model = None
 
