@@ -1349,23 +1349,23 @@ with tab5:
                 with st.expander("ℹ️ Export Format Details"):
                     st.markdown("""
                     **DOCX (Word):**
-                    - ✅ Full formatting (bold, italic, tables)
-                    - ✅ One H1 title only
-                    - ✅ H2 for sections, H3 for subsections
-                    - ✅ Editable in Microsoft Word/Google Docs
-                    - ✅ Tables properly formatted
+                    - Full formatting (bold, italic, tables)
+                    - One H1 title only
+                    - H2 for sections, H3 for subsections
+                    - Editable in Microsoft Word/Google Docs
+                    - Tables properly formatted
                     
                     **HTML (Clean):**
-                    - ✅ No `<html>`, `<head>`, or `<meta>` tags
-                    - ✅ One H1 title only
-                    - ✅ Ready to paste into CMS/website
-                    - ✅ Semantic HTML structure
-                    - ✅ Tables with proper markup
+                    - No html, head, or meta tags
+                    - One H1 title only
+                    - Ready to paste into CMS/website
+                    - Semantic HTML structure
+                    - Tables with proper markup
                     
                     **Markdown:**
-                    - ✅ Plain text with formatting
-                    - ✅ Works with any markdown editor
-                    - ✅ Easy to convert to other formats
+                    - Plain text with formatting
+                    - Works with any markdown editor
+                    - Easy to convert to other formats
                     """)
 
 # Clear all data button
