@@ -182,6 +182,7 @@ JSON FORMAT:
 }}
 
 Create structure NOW:
+"""
 
     messages = [{"role": "user", "content": prompt}]
     response, error = call_grok(messages, max_tokens=3000, temperature=0.6)
