@@ -44,7 +44,8 @@ grok_key = st.sidebar.text_input("Grok API Key (for content generation)", type="
 # Configure Gemini
 if gemini_key:
     genai.configure(api_key=gemini_key)
-    model = genai.GenerativeModel("gemini-1.5-flash-latest")
+    # Updated model name - gemini-1.5-flash is the current version
+    model = genai.GenerativeModel("gemini-1.5-flash")
 else:
     model = None
 
